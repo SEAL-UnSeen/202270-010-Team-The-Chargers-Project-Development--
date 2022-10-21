@@ -21,6 +21,8 @@
 #pip install autocorrect
 #pip install wordninja
 #pip install textstat 
+#pip install inflect
+
 
 # Import 
 import os
@@ -34,6 +36,10 @@ from autocorrect import Speller
 from textblob import TextBlob
 import wordninja
 import textstat 
+import re
+import inflect
+from gensim.models import Word2Vec
+import nltk
 
 # Get the current working directory
 
@@ -48,6 +54,32 @@ df = pd.read_excel('SOPs v1.xlsx')
 #df["Text_wo"] = df['text'].apply(lambda x: ' '.join([word for word in x.split() if word not in (stop)]))
 #df["Text_wo"]= df["Text_wo"].str.replace(r'\W'," ")
 
+#**************************UPSAMPLING***********************
+# Separate majority and minority classes
+#df_majority = df[df.label==0]
+#df_minority = df[df.label==1000]
+ 
+# Upsample minority class
+#df_minority_upsampled = resample(df_minority, 
+#                                 replace=True,     # sample with replacement
+#                                 n_samples=576,    # to match majority class
+#                                 random_state=123) # reproducible results
+ 
+# Combine majority class with upsampled minority class
+#df_upsampled = pd.concat([df_majority, df_minority_upsampled])
+ 
+# Display new class counts
+#df_upsampled.balance.value_counts()
+
+
+#**************************UPSAMPLING2***********************
+
+#def sampling_k_elements(group, k=150):
+#    if len(group) < k:
+#        return group
+#    return group.sample(k)
+
+#df = df.groupby('label').apply(sampling_k_elements).reset_index(drop=True)
 
 print(df)
 
@@ -60,17 +92,20 @@ print(df.isnull().sum())
 print(df2.isnull().sum())
 df = df.dropna()
 
-#Replacing
+#*************************Data Cleansing***************************************************************
 
-replacers = {"l/g":"landing gear", "hsc-manual":"high speed counter manual", "vnav":"vertical navigation", "lnav":"lateral navigation", "econ":"optimum descent speed", "flx":"reduced takeoff thrust", "mct":"maximum continuous thrust", "mcp":"maximum continuous power", "n1":"cockpit gauge which presents the rotational speed of the low pressure", "to/ga":"take-off go Around", "v/s":"stalling speed", "g/s":"ground Stop", "spd ":"speed mode", "flch":"flight level change", "alt":"altitude", "pth":"path", "atc":"Air traffic control", "ovrd ctr":"overdrive control traffic zone", "fl 180":"flight level", "navaids":"navigational Aids", "mcdu":"multi-function control and display unit", "fma":"flight mode annunciator", "hyd":"hydraulic", "rmps":"risk management process", "hdg":"heading the direction", "loc":"loss of aircraft control", "thr ref":"thrust reference", "cmd":"Command", "v1":"maximum speed at which a rejected takeoff can be done", "cdu":"control display units", "egt ":"exhaust gases temperature", "conf ":"configuration", "apu":"auxiliary power unit", "aft":"towards the rear", "pnf":"pilot not flying", " pf ":"pilot flying", "c":"captain", "pfd":"primary flight display", "f/o":"first officer", "egt":"temperature of the exhaust gases", "pu":"processing unit"}
+#Replacing Abbreviations/Accronyms
+
+replacers = {"l/g":"landing gear", "hsc-manual":"high speed counter manual", "vnav":"vertical navigation", "lnav":"lateral navigation", "econ":"optimum descent speed", "flx":"reduced takeoff thrust", "mct":"maximum continuous thrust", "mcp":"maximum continuous power", "n1":"cockpit gauge which presents the rotational speed of the low pressure", "to/ga":"take-off go Around", "v/s":"stalling speed", "g/s":"ground Stop", "spd ":"speed mode", "flch":"flight level change", "alt":"altitude", "pth":"path", "atc":"Air traffic control", "ovrd ctr":"overdrive control traffic zone", "fl 180":"flight level", "navaids":"navigational Aids", "mcdu":"multi-function control and display unit", "fma":"flight mode annunciator", "hyd":"hydraulic", "rmps":"risk management process", "hdg":"heading the direction", "loc":"loss of aircraft control", "thr ref":"thrust reference", "cmd":"Command", "v1":"maximum speed at which a rejected takeoff can be done", "cdu":"control display units", "egt ":"exhaust gases temperature", "conf ":"configuration", "apu":"auxiliary power unit", "aft":"towards the rear", "pnf":"pilot not flying", "pf":"pilot flying", "c":"captain", "pfd":"primary flight display", "f/o":"first officer", "egt":"temperature of the exhaust gases", "pu":"processing unit", "cf/o":"captain flying", "nd":"navigation display", "dh/mda":"referenced to mean sea level or aerodrome elevation ", "gpws":"Ground Proximity Warning System", "a/skid":"skid", "hf":"high frequency", "vhf":"very high frequency", "fac 1":"flight augmentation computer", "f-pln":"flight plan", "fcu":"fuel control unit", "mcduperf clb":"take off Mode", "nw strg disc":"nose wheel steering locked", "ldg":"landing", "emer elec gen ":"emergency electric generator", "fuel x feed":"fuel cross feed", "f-pln":"flight plan", "ext pwr":"external power", "gen":"generator", "sysoff":"system off", "sd":"serial dail", "elev":"elevation"}
 
 
 df['text2'] = (df.text.str.replace('[...…]','')
     .str.split()
     .apply(lambda x: ' '.join([replacers.get(e, e) for e in x])))
         
-   
-        
+#Filter labels
+
+df = df[df['label'] != "Decide" ]
         
 #Sentiment 
 df['sentiment'] = df['text2'].apply(lambda x: TextBlob(x).sentiment)
@@ -89,9 +124,17 @@ df = df[df['text2'].str.len()>3]
 
 df['text2'] = df['text2'].replace(r'[^\w\s]|_', '', regex=True)
 
+#Remove single Character
+
+df['text2'] = df['text2'].str.replace(r'\b\w\b', '').str.replace(r'\s+', ' ')
+
 #Remove extra spaces
 
 df['text2'] = df['text2'].replace(r'\s+', ' ', regex=True)
+
+#Remove single space
+
+df['text2'] = df['text2'].apply(lambda x: str.lstrip(x))
 
 #Word separation
 
@@ -104,12 +147,21 @@ df['text2'] = df['text2'].apply(lambda x: " ".join(x))
 df['Readability_Index'] = df['text2'].apply(lambda x: textstat.automated_readability_index(x))
 df['Reading_Time'] = df['text2'].apply(lambda x: textstat.reading_time(x))
 
+# Extract first word of text
+
+df['word'] = df['text2'].str.split(' ').str[0]
+
+#filter readability index
+
+#df = df[df['Readability_Index'] > -4] 
+
+
 # Frecuencies/Lengths
 
 counts = df['label2'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
-counts = df['label'].value_counts()
+counts = balanced['label'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
 lens = df.text.str.len()
@@ -125,29 +177,34 @@ nlp = spacy_sentence_bert.load_model('en_stsb_roberta_large')
 df['vector'] = df['text2'].apply(lambda x: nlp(x).vector)
 
 
+
+#BERT Word Vectors 2
+df['vector2'] = df['word'].apply(lambda x: nlp(x).vector)
+
+
+
+
+
+
+
 #PCA Vector Dimensionality reduction
+
 from sklearn.manifold import TSNE
 
 X = list(df["vector"])
-
 #X_embedded = TSNE(n_components=2).fit_transform(X) #2 dimension vector
 X_embedded = TSNE(n_components=3).fit_transform(X) #3 dimension vector
-
 df_embeddings = pd.DataFrame(X_embedded)
 #df_embeddings = df_embeddings.rename(columns={0:'x',1:'y'})  #2 dimension vector
 df_embeddings = df_embeddings.rename(columns={0:'x',1:'y',2:'z'}) #3 dimension vector
-
 df2 = pd.concat([df, df_embeddings], axis=1).reindex(df.index)
+
+
 
 #Save clean file
 
-df2.to_excel (r'C:\Users\EstebanEchandi\Desktop\SOPsv1Clean.xlsx', index = False, header=True)
+df.to_excel (r'C:\Users\EstebanEchandi\Desktop\SOPsv1Clean.xlsx', index = False, header=True)
 
-#Check
-
-len(df2.index)
-df2.shape[0]
-df2[df2.columns[0]].count()
 
 
 #**************Dataset split***************
