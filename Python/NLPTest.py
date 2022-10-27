@@ -22,6 +22,7 @@
 #pip install wordninja
 #pip install textstat 
 #pip install inflect
+#pip install lemminflect
 
 
 # Import 
@@ -40,6 +41,7 @@ import re
 import inflect
 from gensim.models import Word2Vec
 import nltk
+import spacy
 
 # Get the current working directory
 
@@ -91,126 +93,184 @@ print(df.label.unique())
 print(df.isnull().sum())
 print(df2.isnull().sum())
 df = df.dropna()
+df.dtypes
+
 
 #*************************Data Cleansing***************************************************************
 
-#Replacing Abbreviations/Accronyms
+#*************************Replacing Abbreviations/Accronyms*************************
 
-replacers = {"l/g":"landing gear", "hsc-manual":"high speed counter manual", "vnav":"vertical navigation", "lnav":"lateral navigation", "econ":"optimum descent speed", "flx":"reduced takeoff thrust", "mct":"maximum continuous thrust", "mcp":"maximum continuous power", "n1":"cockpit gauge which presents the rotational speed of the low pressure", "to/ga":"take-off go Around", "v/s":"stalling speed", "g/s":"ground Stop", "spd ":"speed mode", "flch":"flight level change", "alt":"altitude", "pth":"path", "atc":"Air traffic control", "ovrd ctr":"overdrive control traffic zone", "fl 180":"flight level", "navaids":"navigational Aids", "mcdu":"multi-function control and display unit", "fma":"flight mode annunciator", "hyd":"hydraulic", "rmps":"risk management process", "hdg":"heading the direction", "loc":"loss of aircraft control", "thr ref":"thrust reference", "cmd":"Command", "v1":"maximum speed at which a rejected takeoff can be done", "cdu":"control display units", "egt ":"exhaust gases temperature", "conf ":"configuration", "apu":"auxiliary power unit", "aft":"towards the rear", "pnf":"pilot not flying", "pf":"pilot flying", "c":"captain", "pfd":"primary flight display", "f/o":"first officer", "egt":"temperature of the exhaust gases", "pu":"processing unit", "cf/o":"captain flying", "nd":"navigation display", "dh/mda":"referenced to mean sea level or aerodrome elevation ", "gpws":"Ground Proximity Warning System", "a/skid":"skid", "hf":"high frequency", "vhf":"very high frequency", "fac 1":"flight augmentation computer", "f-pln":"flight plan", "fcu":"fuel control unit", "mcduperf clb":"take off Mode", "nw strg disc":"nose wheel steering locked", "ldg":"landing", "emer elec gen ":"emergency electric generator", "fuel x feed":"fuel cross feed", "f-pln":"flight plan", "ext pwr":"external power", "gen":"generator", "sysoff":"system off", "sd":"serial dail", "elev":"elevation"}
+replacers = {"l/g":"landing gear", "hsc-manual":"high speed counter manual", "vnav":"vertical navigation", "lnav":"lateral navigation", "econ":"optimum descent speed", "flx":"reduced takeoff thrust", "mct":"maximum continuous thrust", "mcp":"maximum continuous power", "n1":"cockpit gauge which presents the rotational speed of the low pressure", "to/ga":"take-off go around", "v/s":"stalling speed", "g/s":"ground Stop", "spd ":"speed mode", "flch":"flight level change", "alt":"altitude", "pth":"path", "atc":"Air traffic control", "ovrd ctr":"overdrive control traffic zone", "fl":"flight level", "navaids":"navigational Aids", "mcdu":"multi-function control and display unit", "fma":"flight mode annunciator", "hyd":"hydraulic", "rmps":"risk management process", "hdg":"heading the direction", "loc":"loss of aircraft control", "thr ref":"thrust reference", "cmd":"Command", "v1":"maximum speed at which a rejected takeoff can be done", "cdu":"control display units", "egt ":"exhaust gases temperature", "conf ":"configuration", "apu":"auxiliary power unit", "aft":"towards the rear", "pnf":"pilot not flying", "pf":"pilot flying", "c":"captain", "pfd":"primary flight display", "f/o":"first officer", "egt":"temperature of the exhaust gases", "pu":"processing unit", "cf/o":"captain flying", "nd":"navigation display", "dh/mda":"referenced to mean sea level or aerodrome elevation ", "gpws":"Ground Proximity Warning System", "a/skid":"skid", "hf":"high frequency", "vhf":"very high frequency", "fac 1":"flight augmentation computer", "f-pln":"flight plan", "fcu":"fuel control unit", "mcduperf clb":"take off Mode", "nw strg disc":"nose wheel steering locked", "ldg elev":"landing elevation", "emer elec gen ":"emergency electric generator", "fuel x feed":"fuel cross feed", "f-pln":"flight plan", "ext pwr":"external power", "gen":"generator", "sysoff":"system off", "sd":"serial dail", "atvr":"Automated Transfer Vehicle", "to":"take-off", "go ":"go arround", "ead":"Electronic Attitude and Direction ", "eadcheck":"Electronic Attitude and Direction check", "n2":"rotational speed of the high pressure engine spool", "fcp":"Final Circulating Pressure", "cdu/fmc":"Control Display Unit flight management computer", "fms":"Flight Management System", "vors":"Very High Frequency Omni-Directional Range", "ilss":"Instrument Landing System", "ils":"Instrument Landing System", "ndb":"non-directional beacon", "ndbs":"non-directional beacon", "canc/rcl":"Cancel/Recall", "eicascaution":"Engine Indicating and Crew Alerting System", "eicas":"Engine Indicating and Crew Alerting System", "l/r":"left or right", "aux":"auxiliary", "trans":"transmitter", "tk":"tank", "tnk":"tank", "ram":"using the airflow created by a moving object to increase ambient pressure", "spd sel":"speed select", "selvfe":"maximum flap extended speed", "atcnotify":"air traffic control notify", "extractovrd":"extract override", "fl100":"flight level 100", "fac":"Flight Augmentation Computer", "flx/mct":"max continuous thrust or reduced takeoff thrust", "flx":"reduced takeoff thrust", "mct":"max continuous thrust", "v2":"Takeoff Safety Speed", "wing + ctr":"wings and center", "ap/fd":"Airborne Collision Avoidance System", "ap/fdoff":"Airborne Collision Avoidance System off", "a/thr":"automatic throttle", "a/throff":"automatic throttle off", "l/gup":"landing gear up", "l/gdown":"landing gear down", "fl":"flight level", "toga":"take-off go around", "grnd splrs":"ground spoilers", "agl":"above ground level", "ecam":"Electronic Centralized Aircraft Monitor", "clb/clb":"climb/climb", "thr ":"Throttle", "clb/op":"Open Climb", "clb":"climb", "fmgs":" Flight Management Guidance System", "ta/ra":"Traffic Advisory/Resolution Advisory", "TARA":"Traffic Advisory/Resolution Advisory", "mda/dh ":"Minimum Descent Altitude/Height ", "mdh/dh ":"Minimum Descent Altitude/Height ", "mdh":"Minimum Descent Altitude/Height ", "mda":"Minimum Descent Altitude/Height ", "v/s":"velocity speeds", "ias":"Indicated Airspeed ", "irs":"inertial reference system", "ins":"Inertial Navigation System", "spd":"speed"}
 
 
 df['text2'] = (df.text.str.replace('[...…]','')
     .str.split()
     .apply(lambda x: ' '.join([replacers.get(e, e) for e in x])))
         
-#Filter labels
+#*************************Filter labels*************************
 
 df = df[df['label'] != "Decide" ]
         
-#Sentiment 
+#*************************Sentiment *************************
 df['sentiment'] = df['text2'].apply(lambda x: TextBlob(x).sentiment)
 
-#Spell corrector
+#*************************Spell corrector*************************
 
 df['text2'] = df['text2'].apply(lambda x:str(TextBlob(x).correct()))
 
-df['tag'] = df['text2'].apply(lambda x: TextBlob(x).tags)
 
-#Remove short strings in text
+#*************************Remove short strings in text*************************
 
 df = df[df['text2'].str.len()>3]
 
-#Replace Special Characters
+#*************************Replace Special Characters*************************
 
 df['text2'] = df['text2'].replace(r'[^\w\s]|_', '', regex=True)
 
-#Remove single Character
+#*************************Remove single Character*************************
 
 df['text2'] = df['text2'].str.replace(r'\b\w\b', '').str.replace(r'\s+', ' ')
 
-#Remove extra spaces
+#*************************Remove extra spaces*************************
 
 df['text2'] = df['text2'].replace(r'\s+', ' ', regex=True)
 
-#Remove single space
+#*************************Remove single space*************************
 
 df['text2'] = df['text2'].apply(lambda x: str.lstrip(x))
 
-#Word separation
+#*************************Word separation*************************
 
 df['text2'] = df['text2'].apply(lambda x: wordninja.split(x))
 
 df['text2'] = df['text2'].apply(lambda x: " ".join(x))
 
-#text stats
+#*************************text stats*************************
 
 df['Readability_Index'] = df['text2'].apply(lambda x: textstat.automated_readability_index(x))
 df['Reading_Time'] = df['text2'].apply(lambda x: textstat.reading_time(x))
 
-# Extract first word of text
+#*************************Extract first word of text*************************
 
 df['word'] = df['text2'].str.split(' ').str[0]
 
-#filter readability index
+#*************************Parts of Speech Tagging*************************
+
+df['full_tag'] = df['text2'].apply(lambda x: TextBlob(x).tags)
+
+#*************************Parts of Speech Tagging2*************************
+
+
+from lemminflect import getInflection, getAllInflections, getAllInflectionsOOV, getAllLemmas
+
+#getAllLemmas('pack')
+#{'NOUN': ('watch',), 'VERB': ('watch',)}
+#getAllInflections('watch')
+
+df['tag2'] = df['word'].apply(lambda x: getAllLemmas(x))
+
+
+
+
+#*************************filter readability index*************************
 
 #df = df[df['Readability_Index'] > -4] 
 
+#************************* Conditional lable to indentify model*************************
 
-# Frecuencies/Lengths
+#***********************Vector 2****************************
+df['Condition_1'] = np.where((df['word']=='if') | (df['word']=='after') | (df['word']=='before') |(df['word']=='when') | (df['word']=='prior') | (df['word']=='during') | (df['word']=='until') |(df['word']=='while') | (df['word']=='following') | (df['word']=='every') | (df['word']=='verify') |(df['word']=='observe') | (df['word']=='check') | (df['word']==''),"v2", "v1")
+
+df['Condition_1_labels'] = np.where((df['label']=='Decide (What)') | (df['label']=='Trigger (What)') | (df['label']=='Verification (What)') | (df['label']=='Waiting (What)'),"Conditional label","No condition")
+
+df['Eliminate'] = np.where((df['Condition_1'] =='v2') & (df['Condition_1_labels']=='No condition'),"Yes", "No")
+
+
+df = df[df['Eliminate'] != "Yes" ]
+
+
+df['dic_len']  = df['tag2'].apply(len)
+
+df['Feature3'] =  df['tag2'].apply(lambda x: str(x))
+
+
+
+#***********************Vector 3****************************
+Verb_1 = 'VERB'
+Noun_1= 'NOUN'
+
+
+df['Condition_2'] = df['Feature3'].str.findall(Verb_1 or (Noun_1 and Verb_1) , flags = re.IGNORECASE)
+
+df['Condition_2'] = df['Condition_2'].astype('string')
+
+df['Condition_2']= df['Condition_2'].astype(str).str.replace(r'\[|\]|', '')
+df['Condition_2']= df['Condition_2'].astype(str).str.replace(r'\'|', '')
+
+df['Condition_3'] = np.where((df['Condition_2'] == "VERB") & (df['label']=='Action (How)'),"Action how verb",0)
+                             
+                             
+                             
+#*************************Frecuencies/Lengths*************************
 
 counts = df['label2'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
-counts = balanced['label'].value_counts()
+counts = df['label'].value_counts()
 counts.plot(kind='bar', legend=False, grid=True, figsize=(8, 5))
 
 lens = df.text.str.len()
 lens.hist(bins = np.arange(0,200,5))
 
 
-#BERT Word Vectors
+#*************************BERT Word Vectors*************************
 
 #nlp = spacy_sentence_bert.load_model('en_stsb_bert_large')
 #nlp = spacy_sentence_bert.load_model('en_stsb_distilbert_base')
+
 nlp = spacy_sentence_bert.load_model('en_stsb_roberta_large')
 
 df['vector'] = df['text2'].apply(lambda x: nlp(x).vector)
 
-
-
-#BERT Word Vectors 2
 df['vector2'] = df['word'].apply(lambda x: nlp(x).vector)
 
+df['vector3'] = df['Condition_3'].apply(lambda x: nlp(x).vector)
 
 
+#*************************Final Vector Model*************************
+
+df['Final_vector']  = np.where((df['Condition_1'] == "v2"), df["vector2"], df["vector"])
+
+df['Final_vector']  = np.where((df['Condition_3'] == "Action how verb"), df['vector3'], df['Final_vector'])
 
 
-
-
-#PCA Vector Dimensionality reduction
+#*************************PCA Vector Dimensionality reduction*************************
 
 from sklearn.manifold import TSNE
 
-X = list(df["vector"])
+X = list(df["Final_vector"])
 #X_embedded = TSNE(n_components=2).fit_transform(X) #2 dimension vector
 X_embedded = TSNE(n_components=3).fit_transform(X) #3 dimension vector
 df_embeddings = pd.DataFrame(X_embedded)
 #df_embeddings = df_embeddings.rename(columns={0:'x',1:'y'})  #2 dimension vector
 df_embeddings = df_embeddings.rename(columns={0:'x',1:'y',2:'z'}) #3 dimension vector
-df2 = pd.concat([df, df_embeddings], axis=1).reindex(df.index)
+df = pd.concat([df, df_embeddings], axis=1).reindex(df.index)
+
+df = df.dropna()
 
 
 
-#Save clean file
+
+
+#********************Save clean file*************************
 
 df.to_excel (r'C:\Users\EstebanEchandi\Desktop\SOPsv1Clean.xlsx', index = False, header=True)
-
 
 
 #**************Dataset split***************
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(df['vector'].tolist(), df['label'].tolist(), test_size=0.3, random_state=690)
+X_train, X_test, y_train, y_test = train_test_split(df['Final_vector'].tolist(), df['label'].tolist(), test_size=0.3, random_state=690)
 
 
 
@@ -234,9 +294,9 @@ sns.heatmap(pd.DataFrame(clf_report).iloc[:-1, :].T, cmap="PiYG",annot=True)
 
 #Test Algorithm
 
-Examples = ['the takeoff must becontinued', 'if the door' ,'flight crew']
+Examples = ['the takeoff must becontinued', 'Action how verb' ,'flight crew']
 
-label = ['Action (What)', 'Decide (What)' ,'Actor']
+label = ['Action (What)', 'Action (How)' ,'Actor']
 
 for Examples, label in zip(Examples, label):
   print(Examples,)
