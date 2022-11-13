@@ -15,9 +15,17 @@ Standard Operating procedures (SOPs) are documented step by step instructions fo
 Github folder structure 
 
 Documents: Contains all algorithm comparison the team did before picking the best performing one. 
+
+
 Python: Contains python scripts used for building NLP model and testing. 
+
+
 Data: Contains all annotated data collected from UBIAI tool. Files are cleaned after downloading from UBIAI before used in NLP model.
+
+
 Model_results: Contains model results we get after running the model. 
+
+
 Vizualizations: Contains all vizualizations used for report. The report explains the vizuals we get when running the model and sequential analysis. 
 Test: 
 
