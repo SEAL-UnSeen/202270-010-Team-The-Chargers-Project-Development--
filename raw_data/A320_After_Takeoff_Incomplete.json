@@ -1,0 +1,195 @@
+[
+  {
+    "documentName": "A320-AfterTakeoff_2022-06-29_19:33:46.2.txt",
+    "document": "A319\nSTANDARD OPERATING PROCEDURES\n3.03.13\nP 1\nCCM\nA320\nA321\nAirlines\nAFTER TAKEOFF\nSEQ 001\nREV 36\nFLIGHT CREW OPERATING MANUAL\nAFTER TAKEOFF\n- APU BLEED\nAS RORD\nIf the APU has been used to supply air conditioning during takeoff, set the APU BLEED\nto OFF. For use of the APU BLEED, refer to the APU LIMITATION Chapter (3.01.49).\n- APU MASTER switch\nAS RORD\n- ENG MODE selector\nAS RORD\nSelect IGN, if severe turbulence or heavy rain is encountered.\n- TCAS ( Mode selector\nTA/RA\nSelect TA/RA, if the takeoff has been performed with TA only.\n- ANTI ICE PROTECTION\nAS RORD\nR\nENG ANTI ICE should be ON, when icing conditions are expected with a TAT at, or\nR\nbelow, 10°C.\nNote: With ENG ANTI ICE ON, the FADEC automatically selects continuous ignition.\nThe IGNITION memo appears on ECAM.\n- AFTER TAKEOFF/CLIMB CHECKLIST down to the line\nCOMPLETE\nCCM ALL\n",
+    "annotation": [
+      {
+        "start": 128,
+        "end": 141,
+        "label": "PROCEDURE NAME",
+        "text": "AFTER TAKEOFF",
+        
+        "propertiesList": [],
+        "commentsList": []
+      },
+      {
+        "start": 162,
+        "end": 229,
+        "label": "DECIDE",
+        "text": "If the APU has been used to supply air conditioning during takeoff,",
+        
+        "propertiesList": [
+          {
+            "name": "Begin",
+            "value": "1"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 230,
+        "end": 255,
+        "label": "ACTION (WHAT)",
+        "text": "set the APU BLEED\nto OFF.",
+      
+        "propertiesList": [
+          {
+            "name": "End",
+            "value": "1"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 331,
+        "end": 356,
+        "label": "ACTION (WHAT)",
+        "text": "APU MASTER switch\nAS RORD",
+      
+        "propertiesList": [
+          {
+            "name": "Begin",
+            "value": "2"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 331,
+        "end": 348,
+        "label": "ACTION (WHERE)",
+        "text": "APU MASTER switch",
+        
+        "propertiesList": [
+          {
+            "name": "End",
+            "value": "2"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 359,
+        "end": 376,
+        "label": "ACTION (WHERE)",
+        "text": "ENG MODE selector",
+        
+        "propertiesList": [
+          {
+            "name": "Begin",
+            "value": "3"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 385,
+        "end": 396,
+        "label": "ACTION (WHAT)",
+        "text": "Select IGN,",
+        
+        "propertiesList": [],
+        "commentsList": []
+      },
+      {
+        "start": 397,
+        "end": 447,
+        "label": "DECIDE",
+        "text": "if severe turbulence or heavy rain is encountered.",
+        
+        "propertiesList": [
+          {
+            "name": "End",
+            "value": "3"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 450,
+        "end": 470,
+        "label": "ACTION (WHERE)",
+        "text": "TCAS ( Mode selector",
+        
+        "propertiesList": [
+          {
+            "name": "Begin",
+            "value": "4"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 477,
+        "end": 490,
+        "label": "ACTION (WHAT)",
+        "text": "Select TA/RA,",
+        
+        "propertiesList": [],
+        "commentsList": []
+      },
+      {
+        "start": 491,
+        "end": 538,
+        "label": "DECIDE",
+        "text": "if the takeoff has been performed with TA only.",
+        
+        "propertiesList": [
+          {
+            "name": "End",
+            "value": "4"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 571,
+        "end": 597,
+        "label": "ACTION (WHAT)",
+        "text": "ENG ANTI ICE should be ON,",
+        
+        "propertiesList": [
+          {
+            "name": "Begin",
+            "value": "5"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 598,
+        "end": 665,
+        "label": "SEE/REMEMBER (WHAT)",
+        "text": "when icing conditions are expected with a TAT at, or\nR\nbelow, 10°C.",
+        
+        "propertiesList": [
+          {
+            "name": "End",
+            "value": "5"
+          }
+        ],
+        "commentsList": []
+      },
+      {
+        "start": 784,
+        "end": 839,
+        "label": "ACTION (WHAT)",
+        "text": "AFTER TAKEOFF/CLIMB CHECKLIST down to the line\nCOMPLETE",
+        
+        "propertiesList": [
+          {
+            "name": "End",
+            "value": "6"
+          }
+        ],
+        "commentsList": []
+      }
+    ],
+    "images": [
+      {
+        "name": "A320-AfterTakeoff_2022-06-29_19:33:46.2.txt_image_0.jpg"
+      }
+    ],
+    "user_input": ""
+  }
+]
